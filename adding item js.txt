@@ -1,0 +1,153 @@
+var budgetcontroller = (function()
+{
+   var Expense= function(id,description,value)
+   {
+     this.id=id;
+     this.description=description;
+     this.value=value;  
+   };
+   var Income = function(id,description,value)
+   {
+     this.id=id;
+     this.description=description;
+     this.value=value;  
+   };
+   var data={
+       allitems:{
+           exp:[],
+           inc:[]
+       },
+       totals:{
+           exp: 0,
+           inc: 0
+       }
+   };
+   return{
+       additem:function(type, des,val)
+       {
+           var newitem,ID;
+           if(data.allitems[type].length>0)
+           {
+            ID=data.allitems[type][data.allitems[type].length-1].id+1;
+           }
+           else
+           {
+               ID=0;
+           }
+           
+           if(type==='exp')
+           {
+               newitem= new Expense(ID,des,val);
+
+           }
+           else if(type==='inc')
+           {
+            newitem= new Income(ID,des,val);
+           }
+           data.allitems[type].push(newitem);
+           return newitem;
+       },
+       testing: function()
+       {
+           console.log(data);
+       }
+   };
+})();
+
+
+
+
+
+var uicontroller = (function()
+{
+    var dom={
+        type: '.add__type',
+        description: '.add__description',
+        value: '.add__value',
+        incomecontainer:'.income__list',
+        expensecontainer:'.expenses__list'
+    }
+    return{
+        getinput:function()
+        {
+            return{
+                type:document.querySelector(dom.type).value,
+                description:document.querySelector(dom.description).value,
+                value:document.querySelector(dom.value).value
+
+
+            };
+        },
+        addlistitem: function(obj, type)
+        {
+            var html,newhtml,element;
+            if(type==='inc')
+            {
+                element=dom.incomecontainer;
+                html='<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+            }
+            else if(type==='exp')
+            {
+                element=dom.expensecontainer;
+                html='<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+            }
+            newhtml= html.replace('%id%', obj.id);
+            newhtml=newhtml.replace('%description%',obj.description);
+            newhtml=newhtml.replace('%value%',obj.value);
+            document.querySelector(element).insertAdjacentHTML('afterend',newhtml);
+
+           
+        },
+        getdom:function()
+        {
+            return dom;
+        }
+    };
+
+
+})();
+
+
+
+
+var appcontroller = (function(budgetctrl,uictrl)
+{
+    var setupeventlisteners= function()
+    {
+        var d=uictrl.getdom();
+        
+    document.querySelector('.add__btn').addEventListener('click', function()
+    {
+        additem();
+       
+
+    });
+    document.addEventListener('keypress',function(event)
+    {
+        if(event.keyCode===13 || event.which===13 )
+        {
+            additem();
+           
+        }
+    });
+    }
+    var additem=function()
+    {
+        var input,newitem;
+        input= uictrl.getinput();
+        newitem=budgetctrl.additem(input.type,input.description,input.value);
+       uictrl.addlistitem(newitem, input.type);
+    }
+    return{
+        init: function()
+        {
+            console.log('Done!!!!!!');
+            setupeventlisteners();
+        }
+    }
+
+
+
+})(budgetcontroller,uicontroller);
+ 
+appcontroller.init();
